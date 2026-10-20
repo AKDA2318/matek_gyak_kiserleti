@@ -14,12 +14,19 @@ const Rajz = {
 
   // Szögív a P csúcsnál a Q1 és Q2 felé mutató szárak között, felirattal.
   // sweep: 1 = a képernyőn az óramutató járásával egyezően rajzol Q1-től Q2 felé.
+  // Derékszögnél (90°) ív helyett a megszokott kis négyzet kerül a csúcsba – kivéve, ha a szög
+  // a kérdés („?”), mert akkor a négyzet elárulná a választ.
   iv(P, Q1, Q2, r, sweep, felirat, osztaly = '') {
     const u1 = Rajz.egyseg(P, Q1);
     const u2 = Rajz.egyseg(P, Q2);
     const k = Rajz.egyseg([0, 0], [u1[0] + u2[0], u1[1] + u2[1]]);
+    const derek = Math.abs(u1[0] * u2[0] + u1[1] * u2[1]) < 0.02 && felirat !== '?';
+    const n = Math.min(14, r * 0.55); // a négyzet oldala
+    const jel = derek
+      ? `<path d="M${P[0] + u1[0] * n} ${P[1] + u1[1] * n} l${u2[0] * n} ${u2[1] * n} L${P[0] + u2[0] * n} ${P[1] + u2[1] * n}" class="jelolo ${osztaly}"/>`
+      : `<path d="M${P[0] + u1[0] * r} ${P[1] + u1[1] * r} A${r} ${r} 0 0 ${sweep} ${P[0] + u2[0] * r} ${P[1] + u2[1] * r}" class="iv ${osztaly}"/>`;
     return (
-      `<path d="M${P[0] + u1[0] * r} ${P[1] + u1[1] * r} A${r} ${r} 0 0 ${sweep} ${P[0] + u2[0] * r} ${P[1] + u2[1] * r}" class="iv ${osztaly}"/>` +
+      jel +
       `<text x="${P[0] + k[0] * (r + 13)}" y="${P[1] + k[1] * (r + 13)}" text-anchor="middle" dominant-baseline="middle" class="cimke ${osztaly}">${felirat}</text>`
     );
   },

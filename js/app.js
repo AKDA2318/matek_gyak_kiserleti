@@ -124,7 +124,7 @@ function temaOldal(tantargy, tema, ful) {
     </nav>
     <div class="panel"></div>`;
   const panel = $('.panel');
-  if (ful === 'gyakorlas') gyakorlasInditas({ tantargy, tema, panel }, tema.feladatok.map((_, i) => i));
+  if (ful === 'gyakorlas') gyakorlasMegnyitas({ tantargy, tema, panel });
   else magyarazat(tema, panel, alap);
 }
 
@@ -301,51 +301,138 @@ function valaszKiolvas(urlap, i) {
   return mezo instanceof RadioNodeList ? mezo.value : mezo.value.trim();
 }
 
-// menet: { tantargy, tema, panel } + a futó gyakorlás állapota
-function gyakorlasInditas(alap, sor) {
-  parMutat({ ...alap, sor, poz: 0, helyes: 0, hibas: [] });
+// ---- Gyakorlás ----
+// A futó gyakorlás állása témánként a böngészőben marad (haladas(...).menet), így ha a diák
+// elnavigál és visszajön, ott folytatja, ahol abbahagyta, és lapozhat a feladatok között.
+// menet: { sor: [feladatindexek], poz: az aktuális oldal első helye a sorban,
+//          eredmeny: { [feladatindex]: { valasz, allapot: 'masodik' | 'jo' | 'rossz', masodikra } } }
+
+const kesz = (e) => e && (e.allapot === 'jo' || e.allapot === 'rossz');
+const helyesDb = (menet) => menet.sor.filter((i) => menet.eredmeny[i]?.allapot === 'jo').length;
+const hibasak = (menet) => menet.sor.filter((i) => menet.eredmeny[i]?.allapot === 'rossz');
+const keszDb = (menet) => menet.sor.filter((i) => kesz(menet.eredmeny[i])).length;
+
+function gyakorlasInditas(ctx, sor) {
+  haladas(ctx.tantargy, ctx.tema.azon).menet = { sor, poz: 0, eredmeny: {} };
+  mentes();
+  oldalMutat(ctx);
 }
 
-function parMutat(menet) {
-  const { tantargy, tema, panel, sor, poz } = menet;
+// A Gyakorlás fül megnyitása: ha van félbehagyott gyakorlás, azt folytatjuk.
+function gyakorlasMegnyitas(ctx) {
+  const { tantargy, tema } = ctx;
+  const menet = haladas(tantargy, tema.azon).menet;
+  const ervenyes = menet && menet.sor.length && menet.sor.every((i) => i < tema.feladatok.length);
+  if (!ervenyes) return gyakorlasInditas(ctx, tema.feladatok.map((_, i) => i));
+  if (keszDb(menet) === menet.sor.length) return osszegzes(ctx);
+  oldalMutat(ctx);
+}
+
+function lapozo(menet) {
+  const oldalak = Math.ceil(menet.sor.length / PARONKENT);
+  const aktualis = menet.poz / PARONKENT;
+  const gombok = Array.from({ length: oldalak }, (_, o) => {
+    const eredmenyek = menet.sor.slice(o * PARONKENT, (o + 1) * PARONKENT).map((i) => menet.eredmeny[i]);
+    const allapot = !eredmenyek.every(kesz) ? '' : eredmenyek.some((e) => e.allapot === 'rossz') ? 'kesz-hibas' : 'kesz-jo';
+    const cimke = `${o + 1}. oldal${allapot ? ', kész' : ''}`;
+    return `<button type="button" class="lap ${allapot}${o === aktualis ? ' aktualis' : ''}" data-oldal="${o}" aria-label="${cimke}"${
+      o === aktualis ? ' aria-current="page"' : ''
+    }>${o + 1}</button>`;
+  }).join('');
+  return `<nav class="lapozo" aria-label="Lapozás a feladatok között">
+    <button type="button" class="gomb kicsi masodlagos" data-oldal="${aktualis - 1}"${aktualis === 0 ? ' disabled' : ''}>← Előző</button>
+    <span class="lapok">${gombok}</span>
+    <button type="button" class="gomb kicsi masodlagos" data-oldal="${aktualis + 1}"${aktualis === oldalak - 1 ? ' disabled' : ''}>Következő →</button>
+  </nav>`;
+}
+
+const joHTML = (f, masodikra) => `<p class="jo">✔ ${masodikra ? 'Helyes, második próbálkozásra! Ügyes vagy, hogy nem adtad fel.' : 'Helyes!'}</p>
+  <details><summary>Megoldás megtekintése</summary>${megoldasHTML(f)}</details>`;
+const rosszHTML = (f) => `<p class="rossz">✘ Most nem sikerült. A helyes válasz: <b>${helyesValasz(f)}</b></p>${megoldasHTML(f)}
+  <p class="biztatas">Nézd át a lépéseket! A végén ezt a feladatot újra gyakorolhatod.</p>`;
+const masodikHTML = (k) => `<p class="figyel">✘ Ez még nem jó, de van még egy esélyed!</p>
+  <p>Nyisd ki a 💡 Segítséget, nézd meg a lépéseket, és javítsd ki a válaszod.</p>
+  <button type="button" class="gomb kicsi masodlagos" data-felad="${k}">Inkább megnézem a megoldást</button>`;
+
+function oldalMutat(ctx) {
+  const { tantargy, tema, panel } = ctx;
+  const menet = haladas(tantargy, tema.azon).menet;
+  const { sor, poz, eredmeny } = menet;
   const indexek = sor.slice(poz, poz + PARONKENT);
-  const korSzam = Math.ceil(sor.length / PARONKENT);
-  panel.innerHTML = `
-    <div class="savsor"><span>${poz / PARONKENT + 1}. kör / ${korSzam}</span><span class="pontszam">${menet.helyes} helyes válasz</span></div>
-    <div class="haladas-sav"><span style="width:${(poz / sor.length) * 100}%"></span></div>
+  const oldalak = Math.ceil(sor.length / PARONKENT);
+  const folytatas = keszDb(menet) > 0 && indexek.some((i) => !kesz(eredmeny[i]));
+  // Minden oldalváltáskor új .gyakorlo elem készül, így az eseménykezelők nem halmozódnak.
+  panel.innerHTML = `<div class="gyakorlo">
+    <div class="savsor"><span>${poz / PARONKENT + 1}. oldal / ${oldalak}</span><span class="pontszam">${helyesDb(menet)} helyes válasz</span></div>
+    <div class="haladas-sav"><span style="width:${(keszDb(menet) / sor.length) * 100}%"></span></div>
+    ${folytatas ? '<p class="folytatas">Ott folytatod, ahol abbahagytad. <button type="button" class="link-gomb" data-m="elorol">Előről kezdem</button></p>' : ''}
     <form class="feladatpar" novalidate>
       ${indexek.map((i) => feladatKartya(tema.feladatok[i], i)).join('')}
       <p class="figyelmeztetes" aria-live="polite"></p>
       <button type="submit" class="gomb">Ellenőrzés</button>
-    </form>`;
-  const urlap = $('form', panel);
+    </form>
+    ${lapozo(menet)}</div>`;
+  const doboz = $('.gyakorlo', panel);
+  const urlap = $('form', doboz);
   const gomb = $('button[type="submit"]', urlap);
   const kartyak = urlap.querySelectorAll('.feladat');
-  // Feladatonként: 'nyitott' → (rossz válasz után: 'masodik') → 'kesz'
-  const allapot = indexek.map(() => 'nyitott');
-  const mindKesz = () => allapot.every((a) => a === 'kesz');
+  const oldalKesz = () => indexek.every((i) => kesz(eredmeny[i]));
 
-  const lezar = (k) => {
-    allapot[k] = 'kesz';
-    kartyak[k].classList.remove('masodik');
-    kartyak[k].querySelectorAll('input').forEach((el) => (el.disabled = true));
-  };
-  const nemSikerult = (k) => {
+  // Egy feladatkártya megjelenítése a tárolt eredménye szerint (beírt válasz, visszajelzés).
+  const rajzol = (k) => {
     const i = indexek[k];
     const f = tema.feladatok[i];
-    kartyak[k].classList.add('hibas');
-    $('.visszajelzes', kartyak[k]).innerHTML = `<p class="rossz">✘ Most nem sikerült. A helyes válasz: <b>${helyesValasz(f)}</b></p>${megoldasHTML(f)}
-      <p class="biztatas">Nézd át a lépéseket! A végén ezt a feladatot újra gyakorolhatod.</p>`;
-    menet.hibas.push(i);
-    lezar(k);
+    const e = eredmeny[i];
+    const kartyaEl = kartyak[k];
+    if (!e) return;
+    const mezo = urlap.elements[`f${i}`];
+    if (mezo instanceof RadioNodeList) mezo.forEach((r) => (r.checked = r.value === e.valasz));
+    else mezo.value = e.valasz;
+    kartyaEl.classList.remove('masodik', 'helyes', 'hibas');
+    const visszajelzes = $('.visszajelzes', kartyaEl);
+    if (e.allapot === 'masodik') {
+      kartyaEl.classList.add('masodik');
+      visszajelzes.innerHTML = masodikHTML(k);
+      const segitseg = $('.segitseg', kartyaEl);
+      if (segitseg) segitseg.open = true;
+      return;
+    }
+    kartyaEl.classList.add(e.allapot === 'jo' ? 'helyes' : 'hibas');
+    visszajelzes.innerHTML = e.allapot === 'jo' ? joHTML(f, e.masodikra) : rosszHTML(f);
+    kartyaEl.querySelectorAll('input').forEach((el) => (el.disabled = true));
   };
   const gombFrissit = () => {
-    gomb.textContent = !mindKesz()
-      ? 'Újra ellenőrzöm'
-      : menet.poz + PARONKENT >= sor.length
+    gomb.textContent = !oldalKesz()
+      ? indexek.some((i) => eredmeny[i]?.allapot === 'masodik')
+        ? 'Újra ellenőrzöm'
+        : 'Ellenőrzés'
+      : keszDb(menet) === sor.length
         ? 'Eredmény megtekintése'
         : `Következő ${PARONKENT} feladat →`;
   };
+  const frissitSav = () => {
+    $('.pontszam', panel).textContent = `${helyesDb(menet)} helyes válasz`;
+    $('.haladas-sav span', panel).style.width = `${(keszDb(menet) / sor.length) * 100}%`;
+    $('.lapozo', panel).outerHTML = lapozo(menet);
+  };
+  const ugras = (oldal) => {
+    menet.poz = Math.max(0, Math.min(oldalak - 1, oldal)) * PARONKENT;
+    mentes();
+    oldalMutat(ctx);
+    panel.scrollIntoView({ block: 'start' });
+  };
+  indexek.forEach((_, k) => rajzol(k));
+  gombFrissit();
+
+  doboz.addEventListener('click', (e) => {
+    const lap = e.target.closest('[data-oldal]');
+    if (lap && !lap.disabled) return ugras(+lap.dataset.oldal);
+    if (e.target.closest('[data-m="elorol"]')) {
+      if (confirm('Biztosan előről kezded? Az ebben a gyakorlásban adott válaszaid törlődnek (a témánál jelzett haladás megmarad).')) {
+        gyakorlasInditas(ctx, tema.feladatok.map((_, i) => i));
+      }
+    }
+  });
 
   urlap.addEventListener('click', (e) => {
     // Segítség: a következő lépés megmutatása
@@ -362,22 +449,27 @@ function parMutat(menet) {
     // Második esélynél: „Inkább megnézem a megoldást”
     const feladGomb = e.target.closest('[data-felad]');
     if (feladGomb) {
-      nemSikerult(+feladGomb.dataset.felad);
+      const k = +feladGomb.dataset.felad;
+      eredmeny[indexek[k]].allapot = 'rossz';
       mentes();
+      rajzol(k);
       gombFrissit();
+      frissitSav();
     }
   });
 
   urlap.addEventListener('submit', (e) => {
     e.preventDefault();
-    if (mindKesz()) {
-      menet.poz += PARONKENT;
-      if (menet.poz >= sor.length) return osszegzes(menet);
-      parMutat(menet);
-      panel.scrollIntoView({ block: 'start' });
+    if (oldalKesz()) {
+      if (keszDb(menet) === sor.length) return osszegzes(ctx);
+      // A következő oldal, amelyen még van megoldatlan feladat (a végéről az elejére visszafordulva).
+      for (let lepes = 1; lepes <= oldalak; lepes++) {
+        const o = (poz / PARONKENT + lepes) % oldalak;
+        if (sor.slice(o * PARONKENT, (o + 1) * PARONKENT).some((i) => !kesz(eredmeny[i]))) return ugras(o);
+      }
       return;
     }
-    const nyitott = indexek.map((_, k) => k).filter((k) => allapot[k] !== 'kesz');
+    const nyitott = indexek.map((_, k) => k).filter((k) => !kesz(eredmeny[indexek[k]]));
     const valaszok = indexek.map((i) => valaszKiolvas(urlap, i));
     if (nyitott.some((k) => valaszok[k] === '')) {
       $('.figyelmeztetes', urlap).textContent = 'Minden feladatra válaszolj, mielőtt ellenőrzöd!';
@@ -387,42 +479,34 @@ function parMutat(menet) {
     nyitott.forEach((k) => {
       const i = indexek[k];
       const f = tema.feladatok[i];
-      const visszajelzes = $('.visszajelzes', kartyak[k]);
+      const masodszor = eredmeny[i]?.allapot === 'masodik';
       if (ertekel(f, valaszok[k])) {
-        visszajelzes.innerHTML = `<p class="jo">✔ ${allapot[k] === 'masodik' ? 'Helyes, második próbálkozásra! Ügyes vagy, hogy nem adtad fel.' : 'Helyes!'}</p>
-          <details><summary>Megoldás megtekintése</summary>${megoldasHTML(f)}</details>`;
-        kartyak[k].classList.add('helyes');
-        lezar(k);
-        menet.helyes++;
+        eredmeny[i] = { valasz: valaszok[k], allapot: 'jo', masodikra: masodszor };
         const h = haladas(tantargy, tema.azon).helyes;
         if (!h.includes(i)) h.push(i);
-      } else if (allapot[k] === 'nyitott' && masodikEsely(f)) {
-        allapot[k] = 'masodik';
-        kartyak[k].classList.add('masodik');
-        visszajelzes.innerHTML = `<p class="figyel">✘ Ez még nem jó, de van még egy esélyed!</p>
-          <p>Nyisd ki a 💡 Segítséget, nézd meg a lépéseket, és javítsd ki a válaszod.</p>
-          <button type="button" class="gomb kicsi masodlagos" data-felad="${k}">Inkább megnézem a megoldást</button>`;
-        const segitseg = $('.segitseg', kartyak[k]);
-        if (segitseg) segitseg.open = true;
       } else {
-        nemSikerult(k);
+        eredmeny[i] = { valasz: valaszok[k], allapot: !masodszor && masodikEsely(f) ? 'masodik' : 'rossz' };
       }
+      rajzol(k);
     });
     mentes();
-    $('.pontszam', panel).textContent = `${menet.helyes} helyes válasz`;
     gombFrissit();
+    frissitSav();
     const javitando = $('.masodik input[type="text"]', urlap);
     if (javitando) javitando.select();
     else gomb.focus();
   });
 
-  const elso = $('input[type="text"]', urlap);
+  const elso = $('input[type="text"]:not(:disabled)', urlap);
   if (elso) elso.focus({ preventScroll: true });
 }
 
-function osszegzes(menet) {
-  const { tantargy, tema, panel, sor, helyes, hibas } = menet;
-  const arany = helyes / sor.length;
+function osszegzes(ctx) {
+  const { tantargy, tema, panel } = ctx;
+  const menet = haladas(tantargy, tema.azon).menet;
+  const helyes = helyesDb(menet);
+  const hibas = hibasak(menet);
+  const arany = helyes / menet.sor.length;
   const ertekeles =
     arany === 1
       ? 'Hibátlan! 🌟'
@@ -433,16 +517,21 @@ function osszegzes(menet) {
           : 'Ne add fel! Nézd át újra a magyarázatot, és próbáld meg még egyszer. A 💡 Segítségben lépésről lépésre is megnézheted a megoldást.';
   panel.innerHTML = `<div class="kartya osszegzes">
     <h3>Vége a gyakorlásnak</h3>
-    <p class="eredmeny">${helyes} / ${sor.length}</p>
+    <p class="eredmeny">${helyes} / ${menet.sor.length}</p>
     <p>${ertekeles}</p>
     ${hibas.length ? `<button type="button" class="gomb" data-m="hibasak">Hibás feladatok újra (${hibas.length})</button>` : ''}
+    <button type="button" class="gomb masodlagos" data-m="atnez">Feladatok átnézése</button>
     <button type="button" class="gomb masodlagos" data-m="ujra">Összes feladat újra</button>
     <a class="gomb masodlagos" href="#/${tantargy.azon}/${tema.azon}/magyarazat">Magyarázat</a>
   </div>`;
-  const alap = { tantargy, tema, panel };
   const hibasGomb = $('[data-m="hibasak"]', panel);
-  if (hibasGomb) hibasGomb.addEventListener('click', () => gyakorlasInditas(alap, hibas));
-  $('[data-m="ujra"]', panel).addEventListener('click', () => gyakorlasInditas(alap, tema.feladatok.map((_, i) => i)));
+  if (hibasGomb) hibasGomb.addEventListener('click', () => gyakorlasInditas(ctx, hibas));
+  $('[data-m="atnez"]', panel).addEventListener('click', () => {
+    menet.poz = 0;
+    mentes();
+    oldalMutat(ctx);
+  });
+  $('[data-m="ujra"]', panel).addEventListener('click', () => gyakorlasInditas(ctx, tema.feladatok.map((_, i) => i)));
 }
 
 // ---- Indítás ----

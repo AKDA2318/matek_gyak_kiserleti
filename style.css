@@ -444,3 +444,24 @@ thead th, tbody th { background: var(--keplet-hatter); }
 .reszek .r3 { background: var(--kitolt-b); }
 .abra .tengely { stroke: var(--szoveg); stroke-width: 1.5; }
 .abra .grafikon { stroke: var(--kiemelo); stroke-width: 3; fill: none; }
+
+/* Lapozás a gyakorló feladatok között */
+.lapozo { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 8px; margin: 18px 0 8px; }
+.lapozo .lapok { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px; }
+.lapozo .lap {
+  font: inherit;
+  font-size: 0.85rem;
+  min-width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  border: 1.5px solid var(--keret);
+  background: var(--felulet);
+  color: var(--szoveg);
+  cursor: pointer;
+}
+.lapozo .lap.kesz-jo { background: var(--kitolt-c); border-color: var(--jo); }
+.lapozo .lap.kesz-hibas { background: var(--kitolt-a); border-color: var(--figyel); }
+.lapozo .lap.aktualis { border-color: var(--kiemelo); border-width: 2.5px; font-weight: 700; }
+.lapozo .gomb:disabled { opacity: 0.4; cursor: default; }
+.folytatas { font-size: 0.95rem; color: var(--halvany); margin: 0 0 10px; }
+.link-gomb { font: inherit; background: none; border: none; padding: 0; color: var(--kiemelo); text-decoration: underline; cursor: pointer; }

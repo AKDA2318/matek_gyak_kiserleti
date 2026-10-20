@@ -19,11 +19,14 @@ Nem kell hozzá telepítés, regisztráció vagy szerver: sima HTML + JavaScript
    - lépésenkénti **animáció feliratokkal**, interaktív **„Próbáld ki!”** rész csúszkákkal,
    - számozott **receptek** és kidolgozott példák,
    - **„A szakmában”** – példák mind a 8 szakmának (tető, létra, burkolatlejtés, lépcső, bútor, rámpa…),
-   - lenyitható **„Technikusoknak”** rész a mélyebb összefüggésekkel, ami a többieket nem zavarja,
+   - lenyitható **„Ha többet szeretnél tudni”** rész a mélyebb összefüggésekkel, aki akarja, kinyitja,
    - gyakori hibák és „Jegyezd meg!” összefoglaló.
 3. **✏️ Gyakorlás fül:** témánként 31–44 (többnyire 33) feladat, a nehéz szinten témánként legalább 15, egyszerre 2 látszik.
-   - Nehézségi címke (Könnyű / Közepes / Nehéz), könnyűtől a nehézig sorban; szakmai feladatoknál szakmacímke (pl. „🧱 Kőműves”).
-   - **💡 Segítség** gomb: tipp a megoldás elárulása nélkül.
+   - A gyakorlás állása megmarad: ha a diák elnavigál, visszatérve ott folytatja, ahol abbahagyta,
+     és a lapozóval bármelyik oldalra visszaléphet (a kész oldalak zölddel, a hibát tartalmazók narancssárgával jelölve).
+   - Nehézségi címke (Könnyű / Közepes / Nehéz), a könnyűtől a nehézig sorban; szakmai feladatoknál szakmacímke (pl. „🧱 Kőműves”).
+   - **💡 Segítség** gomb: előbb egy tipp, utána lépésenként a megoldás menete; a végeredményt a diák számolja ki.
+   - Rossz válasz után második esély (az igen/nem feladatok kivételével).
    - Helyi, azonnali kiértékelés a megoldás menetével; a végén a hibás feladatok újragyakorolhatók.
 
 Az eredmények a böngészőben tárolódnak (`localStorage`), adat nem hagyja el az eszközt.
@@ -33,22 +36,22 @@ Az eredmények a böngészőben tárolódnak (`localStorage`), adat nem hagyja e
 | Csoport | Altémák | Állapot |
 |---|---|---|
 | Számok és műveletek | Műveleti sorrend és számológép, Negatív számok, Kerekítés és becslés, Hatványozás és négyzetgyök | ✅ 33 + 32 + 32 + 33 feladat |
-| Mértékegységek | Hossz és terület, Térfogat és űrtartalom, Tömeg és idő, Sűrűség és tömeg (T) | ✅ 36 + 34 + 34 + 33 feladat |
+| Mértékegységek | Hossz és terület, Térfogat és űrtartalom, Tömeg és idő, Sűrűség és tömeg | ✅ 36 + 34 + 34 + 33 feladat |
 | Törtek | Közönséges törtek, Tizedes törtek | ✅ 36 + 36 feladat |
 | Százalékszámítás | – | ✅ 38 feladat |
-| Arányok | Méretarány, Keverési arány, Egyenes és fordított arányosság, Hasonlóság (T) | ✅ 33 + 33 + 33 + 33 feladat |
+| Arányok | Méretarány, Keverési arány, Egyenes és fordított arányosság, Hasonlóság | ✅ 33 + 33 + 33 + 33 feladat |
 | Síkidomok | Négyzet, Téglalap, Paralelogramma, Rombusz, Trapéz, Deltoid, Háromszög, Kör, Összetett alakzatok | ✅ összesen 302 feladat |
 | Szögszámolás | Szögek a háromszögben, Szögek a négyszögben | ✅ 34 + 34 feladat |
 | Pitagorasz-tétel | – | ✅ 41 feladat |
 | Thalész-tétel | – | ✅ 33 feladat |
 | Trigonometria | Szögfüggvények | ✅ 44 feladat |
-| Testek: felszín és térfogat | Kocka, Téglatest, Hasábok, Henger, Összetett testek, Gúla (T), Kúp (T) | ✅ 33 + 33 + 33 + 33 + 33 + 31 + 31 feladat |
-| Egyenletek és képletek | Egyszerű egyenletek, Lineáris függvény (T) | ✅ 33 + 33 feladat |
+| Testek: felszín és térfogat | Kocka, Téglatest, Hasábok, Henger, Összetett testek, Gúla, Kúp | ✅ 33 + 33 + 33 + 33 + 33 + 31 + 31 feladat |
+| Egyenletek és képletek | Egyszerű egyenletek, Lineáris függvény | ✅ 33 + 33 feladat |
 | Mérés és pontosság | Mérési pontosság és tűrés | ✅ 34 feladat |
-| Adatok és diagramok | Átlag és diagramok (T) | ✅ 33 feladat |
+| Adatok és diagramok | Átlag és diagramok | ✅ 33 feladat |
 | Költségszámítás | Árajánlat készítése, Bér, munkaidő, számla | ✅ 33 + 34 feladat |
 
-Mind a 42 téma kész, összesen 1424 feladat. (T) = technikusoknak szóló téma.
+Mind a 42 téma kész, összesen 1424 feladat.
 
 ## Felépítés (moduláris)
 
@@ -58,7 +61,7 @@ style.css                      megjelenés (világos és sötét mód)
 js/
   tananyag.js                  tantárgyak/témák nyilvántartása, témafájlok betöltése
   rajz.js                      közös SVG-rajzolók (derékszögű háromszög, nyeregtető, szögív)
-  animacio.js                  lépésenkénti, feliratos animáció lejátszó
+  animacio.js                  lépésenkénti, feliratos animációlejátszó
   app.js                       oldalak, fülek, gyakorlás és kiértékelés
 tantargyak/
   szakmak.js                   az iskolában tanított szakmák listája (feladatcímkékhez, minden tantárgynak közös)
@@ -67,7 +70,7 @@ tantargyak/
     kozos/
       geometria.js             közös rajzolók (síkidomok, szögek, törtsáv), csúszkás „Próbáld ki!”,
                                közös magyarázó dobozok (kerület/terület, mértékegység, anyagszükséglet)
-      mertekegyseg.js          váltószámok, automatikusan számolt átváltó feladatok, váltólépcső-rajz
+      mertekegyseg.js          váltószámok, automatikusan számolt átváltó feladatok, váltólépcsőrajz
       testek.js                térbeli rajzok (hasáb, téglatest, henger, gúla, kúp) takart élekkel
     temak/
       pitagorasz.js            egy fájl = egy téma

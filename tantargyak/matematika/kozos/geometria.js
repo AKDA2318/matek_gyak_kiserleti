@@ -223,19 +223,39 @@ const Geo = (() => {
 
   // ---- Interaktív rész csúszkákkal ----
   // csuszkak: [{ k, cim, min, max, lepes, ertek, egyseg }]; frissit(ertekek) → { rajz, szamitas }
+  // A csúszka min/max határa függvény is lehet, amely a többi csúszka értékéből számol
+  // (pl. a számláló legfeljebb a nevező: max: (v) => v.n). Ilyenkor minden mozdításkor
+  // a határ és szükség esetén az érték is igazodik, így nem lehet értelmetlen értéket beállítani.
   function interaktiv({ csuszkak, frissit }) {
+    const hatar = (h, v) => (typeof h === 'function' ? h(v) : h);
+    const fuggo = csuszkak.filter((c) => typeof c.min === 'function' || typeof c.max === 'function');
     return (el) => {
+      const kezdo = Object.fromEntries(csuszkak.map((c) => [c.k, c.ertek]));
       el.innerHTML = `<div class="interaktiv">
         <div class="rajz"></div>
         <div class="csuszkak">${csuszkak
           .map(
             (c) => `<label>${c.cim}: <output data-k="${c.k}"></output> ${c.egyseg || ''}
-              <input type="range" min="${c.min}" max="${c.max}" step="${c.lepes}" value="${c.ertek}" data-k="${c.k}"></label>`,
+              <input type="range" min="${hatar(c.min, kezdo)}" max="${hatar(c.max, kezdo)}" step="${c.lepes}" value="${c.ertek}" data-k="${c.k}"></label>`,
           )
           .join('')}<p class="szamitas"></p></div>
       </div>`;
-      const ertekek = () => Object.fromEntries(csuszkak.map((c) => [c.k, Number(el.querySelector(`input[data-k="${c.k}"]`).value)]));
+      const csuszka = (k) => el.querySelector(`input[data-k="${k}"]`);
+      const ertekek = () => Object.fromEntries(csuszkak.map((c) => [c.k, Number(csuszka(c.k).value)]));
+      // Kétszer igazítunk, hogy az egymástól kölcsönösen függő határok is beálljanak.
+      const igazit = () => {
+        for (let kor = 0; kor < 2; kor++) {
+          const v = ertekek();
+          fuggo.forEach((c) => {
+            const mezo = csuszka(c.k);
+            mezo.min = hatar(c.min, v);
+            mezo.max = hatar(c.max, v);
+            mezo.value = Math.min(Math.max(Number(mezo.value), Number(mezo.min)), Number(mezo.max));
+          });
+        }
+      };
       const fr = () => {
+        igazit();
         const v = ertekek();
         csuszkak.forEach((c) => (el.querySelector(`output[data-k="${c.k}"]`).textContent = sz(v[c.k])));
         const { rajz, szamitas } = frissit(v);
@@ -255,7 +275,7 @@ const Geo = (() => {
       <div class="tabla-keret"><table>
         <thead><tr><th></th><th>Kerület</th><th>Terület</th></tr></thead>
         <tbody>
-          <tr><th>Mit jelent?</th><td>Körbe mérve, a széle mentén</td><td>A felület nagysága, ami „belül” van</td></tr>
+          <tr><th>Mit jelent?</th><td>Körbemérve, a széle mentén</td><td>A felület nagysága, ami „belül” van</td></tr>
           <tr><th>Mértékegység</th><td>m, cm, mm</td><td>m², cm² (négyzetméter)</td></tr>
           <tr><th>Mikor kell?</th><td>szegélyléc, élzáró, kerítés, maszkolószalag, paszpól, zsalu</td><td>csempe, festék, tapéta, parketta, kárpitanyag, cserép</td></tr>
         </tbody>
