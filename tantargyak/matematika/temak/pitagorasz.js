@@ -118,7 +118,7 @@
         valasztas: ['x', 'y', 'z'],
         valasz: 'z',
         segitseg: 'Keresd meg a kis négyzetet a sarokban. Az átfogó vele szemben van.',
-        megoldas: 'A z a leghosszabb oldal, és a kis négyzettel (a derékszöggel) szemben van. Ez az átfogó.',
+        megoldas: 'Az a leghosszabb oldal, és a kis négyzettel (a derékszöggel) szemben van. Ez az átfogó.',
       },
       {
         kerdes: 'Milyen háromszögre használhatod a Pitagorasz-tételt?',
@@ -177,7 +177,7 @@
         valasz: 100,
         egyseg: 'cm',
         segitseg: 'Ez is a 3-4-5 szabály, csak 20-szor nagyobban: 60 = 3 · 20, 80 = 4 · 20.',
-        megoldas: '√(60 · 60 + 80 · 80) = √(3600 + 6400) = √10000 = 100 cm.',
+        megoldas: '√(60 · 60 + 80 · 80) = √(3600 + 6400) = √10 000 = 100 cm.',
       },
       {
         kerdes: 'A létra teteje a falon 4 m magasan van. A létra alja 3 m-re van a faltól. Milyen hosszú a létra?',
@@ -254,7 +254,7 @@
         valasz: 205,
         egyseg: 'cm',
         segitseg: 'Az ajtó szélessége és magassága a két rövidebb oldal. Az átló a ferde oldal.',
-        megoldas: '√(45 · 45 + 200 · 200) = √(2025 + 40000) = √42025 = 205 cm.',
+        megoldas: '√(45 · 45 + 200 · 200) = √(2025 + 40 000) = √42 025 = 205 cm.',
       },
       {
         kerdes: 'A csempét átlósan (sarokkal felfelé) rakod le. A csempe 30 cm × 30 cm-es. Milyen hosszú az átlója?',
@@ -281,7 +281,7 @@
         tizedes: 0,
         egyseg: 'cm',
         segitseg: 'A lap az ajtó átlójában fér be a legjobban. Az ajtó szélessége és magassága a két rövidebb oldal.',
-        megoldas: '√(80 · 80 + 200 · 200) = √(6400 + 40000) = √46400 ≈ 215 cm. Ennél hosszabb lap átlósan sem fér be.',
+        megoldas: '√(80 · 80 + 200 · 200) = √(6400 + 40 000) = √46 400 ≈ 215 cm. Ennél hosszabb lap átlósan sem fér be.',
       },
       {
         kerdes: 'Egy oszlopot ferde dúccal támasztasz ki. A dúc az oszlopon 2,4 m magasan, a földön az oszloptól 1,8 m-re van. Milyen hosszú a dúc?',
@@ -391,7 +391,7 @@
         valasz: 5.6,
         egyseg: 'm',
         segitseg: '1) A háromszögben a ház szélességének csak a FELE van (8 : 2 = 4 m). 2) Pitagorasszal a szarufa a faltól a gerincig. 3) Add hozzá az eresz 0,6 m-ét.',
-        megoldas: 'Fele: 8 : 2 = 4 m.<br>√(4 · 4 + 3 · 3) = √(16 + 9) = √25 = 5 m.<br>Ereszszel: 5 + 0,6 = 5,6 m.',
+        megoldas: 'Fele: 8 : 2 = 4 m.<br>√(4 · 4 + 3 · 3) = √(16 + 9) = √25 = 5 m.<br>Eresszel: 5 + 0,6 = 5,6 m.',
       },
       {
         kerdes: 'A ház 7,2 m széles, a tető 2,7 m magas. A szarufára 30 cm-enként tetőlécet szegezel, az eresznél és a gerincnél is van léc. Hány léc kerül egy tetőoldalra (egy szarufasorra)?',

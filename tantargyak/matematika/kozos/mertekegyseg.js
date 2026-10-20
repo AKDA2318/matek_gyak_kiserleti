@@ -39,7 +39,7 @@ const Mertek = (() => {
     };
   }
 
-  // „Váltólépcső”: az egységek sorban, nagyobbtól a kisebbig. Fölöttük jobbra (· váltószám),
+  // „Váltólépcső”: az egységek sorban, a nagyobbtól a kisebbig. Fölöttük jobbra (· váltószám),
   // alattuk balra (: váltószám) mutató nyíl.
   function lepcso(egysegek, valtoszamok, { kiemel = [] } = {}) {
     const doboz = 56;

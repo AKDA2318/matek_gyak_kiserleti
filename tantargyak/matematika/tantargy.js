@@ -31,7 +31,7 @@ Tananyag.tantargy({
         { azon: 'hossz-terulet', cim: 'Hossz és terület' },
         { azon: 'terfogat-urtartalom', cim: 'Térfogat és űrtartalom' },
         { azon: 'tomeg-ido', cim: 'Tömeg és idő' },
-        { azon: 'suruseg', cim: 'Sűrűség és tömeg', leiras: 'Technikusoknak' },
+        { azon: 'suruseg', cim: 'Sűrűség és tömeg' },
       ],
     },
     {
@@ -60,7 +60,7 @@ Tananyag.tantargy({
         { azon: 'meretarany', cim: 'Méretarány (tervrajz)' },
         { azon: 'keveresi-arany', cim: 'Keverési arány' },
         { azon: 'egyenes-forditott', cim: 'Egyenes és fordított arányosság' },
-        { azon: 'hasonlosag', cim: 'Hasonlóság', leiras: 'Technikusoknak' },
+        { azon: 'hasonlosag', cim: 'Hasonlóság' },
       ],
     },
     {
@@ -122,8 +122,8 @@ Tananyag.tantargy({
         { azon: 'hasabok', cim: 'Hasábok', leiras: 'Háromszög és trapéz alapú: padlástér, árok, támfal' },
         { azon: 'henger', cim: 'Henger', leiras: 'Oszlop, cső, tartály' },
         { azon: 'osszetett-testek', cim: 'Összetett testek', leiras: 'Ház tetővel, lépcső' },
-        { azon: 'gula', cim: 'Gúla', leiras: 'Technikusoknak' },
-        { azon: 'kup', cim: 'Kúp', leiras: 'Technikusoknak' },
+        { azon: 'gula', cim: 'Gúla' },
+        { azon: 'kup', cim: 'Kúp' },
       ],
     },
     {
@@ -133,7 +133,7 @@ Tananyag.tantargy({
       leiras: 'Egyszerű egyenletek, képletek átrendezése',
       temak: [
         { azon: 'egyszeru-egyenletek', cim: 'Egyszerű egyenletek' },
-        { azon: 'linearis-fuggveny', cim: 'Lineáris függvény, grafikon', leiras: 'Technikusoknak' },
+        { azon: 'linearis-fuggveny', cim: 'Lineáris függvény, grafikon' },
       ],
     },
     {
@@ -148,7 +148,7 @@ Tananyag.tantargy({
       cim: 'Adatok és diagramok',
       ikon: '📊',
       leiras: 'Átlag, táblázat, diagram olvasása',
-      temak: [{ azon: 'atlag-diagram', cim: 'Átlag és diagramok', leiras: 'Technikusoknak' }],
+      temak: [{ azon: 'atlag-diagram', cim: 'Átlag és diagramok' }],
     },
     {
       azon: 'koltseg',
