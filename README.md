@@ -28,6 +28,9 @@ Nem kell hozzá telepítés, regisztráció vagy szerver: sima HTML + JavaScript
    - **💡 Segítség** gomb: előbb egy tipp, utána lépésenként a megoldás menete; a végeredményt a diák számolja ki.
    - Rossz válasz után második esély (az igen/nem feladatok kivételével).
    - Helyi, azonnali kiértékelés a megoldás menetével; a végén a hibás feladatok újragyakorolhatók.
+   - **Pontozás és kiértékelés:** elsőre jó válasz 1 pont, második próbálkozásra fél pont, egyébként 0.
+     A „Befejezés és kiértékelés” gomb bármikor kiértékeli az addig megoldott feladatokat (a kihagyottak nem
+     számítanak bele): pontszám, százalék, és lista arról, hol hibázott a diák, ugrással az adott feladathoz.
 
 Az eredmények a böngészőben tárolódnak (`localStorage`), adat nem hagyja el az eszközt.
 
